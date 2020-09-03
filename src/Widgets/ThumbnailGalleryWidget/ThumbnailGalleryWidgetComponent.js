@@ -1,12 +1,18 @@
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import * as React from "react";
 import * as Scrivito from "scrivito";
 import Lightbox from "react-images";
+import { Carousel } from "react-responsive-carousel";
+import Modal from "react-modal";
 
 import fullScreenWidthPixels from "../../utils/fullScreenWidthPixels";
 import InPlaceEditingPlaceholder from "../../Components/InPlaceEditingPlaceholder";
 import TagList from "../../Components/TagList";
 import isImage from "../../utils/isImage";
 import "./ThumbnailGalleryWidget.scss";
+import { ArrowRightIcon } from "./Carousel/ArrowRightIcon";
+import { ArrowLeftIcon } from "./Carousel/ArrowLeftIcon";
+import { CloseIcon } from "./Carousel/CloseIcon";
 
 class ThumbnailGalleryComponent extends React.Component {
   constructor(props) {
@@ -15,6 +21,9 @@ class ThumbnailGalleryComponent extends React.Component {
       currentImage: 0,
       lightboxIsOpen: false,
       currentTag: "",
+      isOpen: false,
+      isHidden: true,
+      activeImage: 0,
     };
 
     this.openLightbox = this.openLightbox.bind(this);
@@ -23,6 +32,9 @@ class ThumbnailGalleryComponent extends React.Component {
     this.gotoNext = this.gotoNext.bind(this);
     this.gotoImage = this.gotoImage.bind(this);
     this.setTag = this.setTag.bind(this);
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+    this.showImage = this.showImage.bind(this);
   }
 
   openLightbox(index, event) {
@@ -62,6 +74,18 @@ class ThumbnailGalleryComponent extends React.Component {
     this.setState({
       currentTag: tag,
     });
+  }
+
+  openModal(activeImage) {
+    this.setState({ isOpen: true, activeImage });
+  }
+
+  closeModal() {
+    this.setState({ isOpen: false });
+  }
+
+  showImage() {
+    this.setState({ isHidden: false });
   }
 
   render() {
@@ -111,6 +135,145 @@ class ThumbnailGalleryComponent extends React.Component {
             backdropClosesModal
           />
         </div>
+        <div className="row thumbnail-gallery-widget--wrapper">
+          {images.map((image, imageIndex) => (
+            <Thumbnail
+              key={image.id()}
+              widget={image}
+              openLightbox={() => {
+                this.openModal(imageIndex);
+              }}
+              currentTag={this.state.currentTag}
+            />
+          ))}
+        </div>
+        <Modal
+          isOpen={this.state.isOpen}
+          style={{
+            content: {
+              zIndex: 200000,
+              backgroundColor: "transparent",
+              border: 0,
+              padding: 0,
+              overflow: "hidden",
+            },
+            overlay: {
+              zIndex: 200000,
+              backgroundColor: `rgba(0,0,0,0.8)`,
+            },
+          }}
+          onRequestClose={() => {
+            this.setState({ isOpen: false });
+          }}
+          shouldCloseOnOverlayClick
+          shouldFocusAfterRender
+          shouldCloseOnEsc
+          ariaHideApp={false}
+        >
+          <span
+            onClick={() => {
+              this.setState({ isOpen: false });
+            }}
+          >
+            <Carousel
+              axis="horizontal"
+              showIndicators={false}
+              showStatus={false}
+              selectedItem={this.state.activeImage}
+              useKeyboardArrows
+              thumbWidth={50}
+              swipeable
+              renderThumbs={() => {
+                return lightboxImages.map((image, index) => {
+                  return (
+                    <Scrivito.BackgroundImageTag
+                      key={index}
+                      style={{
+                        background: {
+                          image: `url("${image.thumbnail}")`,
+                          size: "cover",
+                          position: "center",
+                        },
+                      }}
+                      onClick={(e) => {
+                        this.setState({ activeImage: index });
+
+                        e.stopPropagation();
+                      }}
+                    />
+                  );
+                });
+              }}
+              renderArrowNext={(clickHandler, hasNext) => {
+                return (
+                  hasNext && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        clickHandler();
+                      }}
+                      className="arrow"
+                    >
+                      <ArrowRightIcon />
+                    </span>
+                  )
+                );
+              }}
+              renderArrowPrev={(clickHandler, hasPrevious) => {
+                return (
+                  hasPrevious && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        clickHandler();
+                      }}
+                      className="arrow"
+                    >
+                      <ArrowLeftIcon />
+                    </span>
+                  )
+                );
+              }}
+            >
+              {images.map((imageWidget, imageIndex) => {
+                const image = imageWidget.get("image");
+
+                return (
+                  <div
+                    key={imageIndex}
+                    className="image-wrapper"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <div className="close" onClick={this.closeModal}>
+                      <CloseIcon />
+                    </div>
+                    <Scrivito.ImageTag
+                      content={imageWidget}
+                      attribute="image"
+                      className="image"
+                      alt={image.get("alternativeText")}
+                    />
+                    <div className="details">
+                      <div className="description">
+                        {[
+                          imageWidget.get("title"),
+                          imageWidget.get("subtitle"),
+                        ].join(" - ")}
+                      </div>
+                      <div className="status">{`${imageIndex + 1} of ${
+                        images.length
+                      }`}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </Carousel>
+          </span>
+        </Modal>
       </div>
     );
   }

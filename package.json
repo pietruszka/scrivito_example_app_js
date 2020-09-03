@@ -65,6 +65,8 @@
     "react-helmet-async": "^1.0.6",
     "react-highlight-words": "^0.16.0",
     "react-images": "^0.5.19",
+    "react-modal": "^3.11.2",
+    "react-responsive-carousel": "^3.2.9",
     "react-reveal": "^1.2.2",
     "react-slick": "^0.27.10",
     "reactstrap": "^8.5.1",
