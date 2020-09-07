@@ -198,10 +198,20 @@
   visibility: hidden;
 }
 
-.image-wrapper .close {
+.image-wrapper .close-bar {
   display: flex;
   justify-content: flex-end;
+}
+
+.image-wrapper .close {
   margin: 10px 0;
+  background-image: url("../../assets/images/close.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
 }
 
 .image-wrapper .close svg {

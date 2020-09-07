@@ -237,8 +237,15 @@ class ThumbnailGalleryComponent extends React.Component {
                       e.stopPropagation();
                     }}
                   >
-                    <div className="close" onClick={this.closeModal}>
-                      <CloseIcon />
+                    <div
+                      className="close-bar"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        this.closeModal();
+                      }}
+                    >
+                      <span className="close" />
                     </div>
                     <Scrivito.ImageTag
                       content={imageWidget}
