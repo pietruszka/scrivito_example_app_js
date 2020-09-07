@@ -18,7 +18,6 @@ class ThumbnailGalleryComponent extends React.Component {
       lightboxIsOpen: false,
       currentTag: "",
       isOpen: false,
-      isHidden: true,
       activeImage: 0,
     };
 
@@ -30,7 +29,6 @@ class ThumbnailGalleryComponent extends React.Component {
     this.setTag = this.setTag.bind(this);
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    this.showImage = this.showImage.bind(this);
   }
 
   openLightbox(index, event) {
@@ -78,10 +76,6 @@ class ThumbnailGalleryComponent extends React.Component {
 
   closeModal() {
     this.setState({ isOpen: false });
-  }
-
-  showImage() {
-    this.setState({ isHidden: false });
   }
 
   render() {
@@ -156,8 +150,10 @@ class ThumbnailGalleryComponent extends React.Component {
           ariaHideApp={false}
         >
           <span
-            onClick={() => {
-              this.setState({ isOpen: false });
+            onClick={(e) => {
+              e.stopPropagation();
+
+              this.closeModal();
             }}
           >
             <Carousel
@@ -218,9 +214,7 @@ class ThumbnailGalleryComponent extends React.Component {
                 );
               }}
             >
-              {images.map((imageWidget, imageIndex) => {
-                const image = imageWidget.get("image");
-
+              {lightboxImages.map(({ image, caption, alt }, imageIndex) => {
                 return (
                   <div
                     key={imageIndex}
@@ -240,18 +234,13 @@ class ThumbnailGalleryComponent extends React.Component {
                       <span className="close" />
                     </div>
                     <Scrivito.ImageTag
-                      content={imageWidget}
+                      content={image}
                       attribute="image"
                       className="image"
-                      alt={image.get("alternativeText")}
+                      alt={alt}
                     />
                     <div className="details">
-                      <div className="description">
-                        {[
-                          imageWidget.get("title"),
-                          imageWidget.get("subtitle"),
-                        ].join(" - ")}
-                      </div>
+                      <div className="description">{caption}</div>
                       <div className="status">{`${imageIndex + 1} of ${
                         images.length
                       }`}</div>
@@ -327,14 +316,14 @@ function lightboxOptions(galleryImageWidget) {
   const binary = image.get("blob");
   const srcUrl = binary.optimizeFor({ width: fullScreenWidthPixels() }).url();
   const alt = image.get("alternativeText");
+  const title = galleryImageWidget.get("title");
+  const subtitle = galleryImageWidget.get("subtitle");
 
   return {
     src: srcUrl,
     thumbnail: srcUrl,
-    caption: [
-      galleryImageWidget.get("title"),
-      galleryImageWidget.get("subtitle"),
-    ].join(" - "),
+    caption: [title, subtitle].join(" - "),
     alt,
+    image: galleryImageWidget,
   };
 }
