@@ -231,3 +231,16 @@
 .carousel .slide img {
   width: unset;
 }
+
+.ReactModalPortal .ReactModal__Overlay {
+  z-index: 200000;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.ReactModalPortal .ReactModal__Content {
+  z-index: 200000;
+  background-color: rgba(0, 0, 0, 0) !important;
+  border: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}

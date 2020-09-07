@@ -149,21 +149,10 @@ class ThumbnailGalleryComponent extends React.Component {
         </div>
         <Modal
           isOpen={this.state.isOpen}
-          style={{
-            content: {
-              zIndex: 200000,
-              backgroundColor: "transparent",
-              border: 0,
-              padding: 0,
-              overflow: "hidden",
-            },
-            overlay: {
-              zIndex: 200000,
-              backgroundColor: `rgba(0,0,0,0.8)`,
-            },
-          }}
-          onRequestClose={() => {
-            this.setState({ isOpen: false });
+          onRequestClose={(e) => {
+            e.stopPropagation();
+
+            this.closeModal();
           }}
           shouldCloseOnOverlayClick
           shouldFocusAfterRender
