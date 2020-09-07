@@ -10,9 +10,6 @@ import InPlaceEditingPlaceholder from "../../Components/InPlaceEditingPlaceholde
 import TagList from "../../Components/TagList";
 import isImage from "../../utils/isImage";
 import "./ThumbnailGalleryWidget.scss";
-import { ArrowRightIcon } from "./Carousel/ArrowRightIcon";
-import { ArrowLeftIcon } from "./Carousel/ArrowLeftIcon";
-import { CloseIcon } from "./Carousel/CloseIcon";
 
 class ThumbnailGalleryComponent extends React.Component {
   constructor(props) {
@@ -202,10 +199,8 @@ class ThumbnailGalleryComponent extends React.Component {
 
                         clickHandler();
                       }}
-                      className="arrow"
-                    >
-                      <ArrowRightIcon />
-                    </span>
+                      className="arrow next"
+                    />
                   )
                 );
               }}
@@ -218,10 +213,8 @@ class ThumbnailGalleryComponent extends React.Component {
 
                         clickHandler();
                       }}
-                      className="arrow"
-                    >
-                      <ArrowLeftIcon />
-                    </span>
+                      className="arrow prev"
+                    />
                   )
                 );
               }}

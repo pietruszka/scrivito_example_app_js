@@ -129,12 +129,21 @@
 
 .carousel .arrow {
   display: flex;
-  align-items: center;
+  align-self: center;
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+  height: 43px;
+  width: 43px;
+  cursor: pointer;
 }
 
-.carousel .arrow svg {
-  height: 43px;
-  cursor: pointer;
+.carousel .arrow.prev {
+  background-image: url("../../assets/images/arrow_prev.svg");
+}
+
+.carousel .arrow.next {
+  background-image: url("../../assets/images/arrow_next.svg");
 }
 
 .carousel.carousel-slider {
