@@ -3,7 +3,6 @@ import * as Scrivito from "scrivito";
 import { Carousel } from "react-responsive-carousel";
 import Modal from "react-modal";
 
-import fullScreenWidthPixels from "../../utils/fullScreenWidthPixels";
 import InPlaceEditingPlaceholder from "../../Components/InPlaceEditingPlaceholder";
 import TagList from "../../Components/TagList";
 import isImage from "../../utils/isImage";
@@ -99,13 +98,13 @@ class ThumbnailGalleryComponent extends React.Component {
               thumbWidth={50}
               swipeable
               renderThumbs={() => {
-                return lightboxImages.map(({ thumbnail }, index) => {
+                return lightboxImages.map(({ image }, index) => {
                   return (
                     <Scrivito.BackgroundImageTag
                       key={index}
                       style={{
                         background: {
-                          image: `url("${thumbnail}")`,
+                          image: image.get("image"),
                           size: "cover",
                           position: "center",
                         },
@@ -247,14 +246,11 @@ function allTags(images) {
 
 function getLightboxOptions(galleryImageWidget) {
   const image = galleryImageWidget.get("image");
-  const binary = image.get("blob");
-  const srcUrl = binary.optimizeFor({ width: fullScreenWidthPixels() }).url();
   const alt = image.get("alternativeText");
   const title = galleryImageWidget.get("title");
   const subtitle = galleryImageWidget.get("subtitle");
 
   return {
-    thumbnail: srcUrl,
     caption: [title, subtitle].join(" - "),
     alt,
     image: galleryImageWidget,
