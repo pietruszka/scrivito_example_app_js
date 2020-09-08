@@ -96,7 +96,6 @@ class ThumbnailGalleryComponent extends React.Component {
               selectedItem={this.state.activeImage}
               useKeyboardArrows
               thumbWidth={50}
-              swipeable
               renderThumbs={() => {
                 return lightboxImages.map(({ image }, index) => {
                   return (
