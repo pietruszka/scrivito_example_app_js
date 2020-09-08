@@ -148,6 +148,7 @@ class ThumbnailGalleryComponent extends React.Component {
           shouldFocusAfterRender
           shouldCloseOnEsc
           ariaHideApp={false}
+          portalClassName="ReactModalPortal--thumbnail-gallery-widget"
         >
           <span
             onClick={(e) => {
