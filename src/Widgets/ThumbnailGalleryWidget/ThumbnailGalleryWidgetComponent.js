@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as Scrivito from "scrivito";
-import Lightbox from "react-images";
 import { Carousel } from "react-responsive-carousel";
 import Modal from "react-modal";
 
@@ -14,54 +13,14 @@ class ThumbnailGalleryComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentImage: 0,
-      lightboxIsOpen: false,
       currentTag: "",
       isOpen: false,
       activeImage: 0,
     };
 
-    this.openLightbox = this.openLightbox.bind(this);
-    this.closeLightbox = this.closeLightbox.bind(this);
-    this.gotoPrevious = this.gotoPrevious.bind(this);
-    this.gotoNext = this.gotoNext.bind(this);
-    this.gotoImage = this.gotoImage.bind(this);
     this.setTag = this.setTag.bind(this);
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
-  }
-
-  openLightbox(index, event) {
-    event.preventDefault();
-    this.setState({
-      currentImage: index,
-      lightboxIsOpen: true,
-    });
-  }
-
-  closeLightbox() {
-    this.setState({
-      currentImage: 0,
-      lightboxIsOpen: false,
-    });
-  }
-
-  gotoPrevious() {
-    this.setState({
-      currentImage: this.state.currentImage - 1,
-    });
-  }
-
-  gotoNext() {
-    this.setState({
-      currentImage: this.state.currentImage + 1,
-    });
-  }
-
-  gotoImage(index) {
-    this.setState({
-      currentImage: index,
-    });
   }
 
   setTag(tag) {
@@ -83,9 +42,9 @@ class ThumbnailGalleryComponent extends React.Component {
     const images = widget
       .get("images")
       .filter((subWidget) => isImage(subWidget.get("image")));
-    const lightboxImages = images.map((image) => lightboxOptions(image));
+    const lightboxImages = images.map(getLightboxOptions);
 
-    if (!images.length) {
+    if (images.length === 0) {
       return (
         <InPlaceEditingPlaceholder center>
           Select images in the widget properties.
@@ -101,38 +60,12 @@ class ThumbnailGalleryComponent extends React.Component {
           currentTag={this.state.currentTag}
           setTag={this.setTag}
         />
-        <div>
-          <div className="row thumbnail-gallery-widget--wrapper">
-            {images.map((image, imageIndex) => (
-              <Thumbnail
-                key={image.id()}
-                widget={image}
-                openLightbox={(event) => this.openLightbox(imageIndex, event)}
-                currentTag={this.state.currentTag}
-              />
-            ))}
-          </div>
-          <Lightbox
-            images={lightboxImages}
-            currentImage={this.state.currentImage}
-            isOpen={this.state.lightboxIsOpen}
-            onClickImage={this.handleClickImage}
-            onClickNext={this.gotoNext}
-            onClickPrev={this.gotoPrevious}
-            onClickThumbnail={this.gotoImage}
-            onClose={this.closeLightbox}
-            showThumbnails
-            backdropClosesModal
-          />
-        </div>
         <div className="row thumbnail-gallery-widget--wrapper">
           {images.map((image, imageIndex) => (
             <Thumbnail
               key={image.id()}
               widget={image}
-              openLightbox={() => {
-                this.openModal(imageIndex);
-              }}
+              onClick={() => this.openModal(imageIndex)}
               currentTag={this.state.currentTag}
             />
           ))}
@@ -166,13 +99,13 @@ class ThumbnailGalleryComponent extends React.Component {
               thumbWidth={50}
               swipeable
               renderThumbs={() => {
-                return lightboxImages.map((image, index) => {
+                return lightboxImages.map(({ thumbnail }, index) => {
                   return (
                     <Scrivito.BackgroundImageTag
                       key={index}
                       style={{
                         background: {
-                          image: `url("${image.thumbnail}")`,
+                          image: `url("${thumbnail}")`,
                           size: "cover",
                           position: "center",
                         },
@@ -260,7 +193,7 @@ class ThumbnailGalleryComponent extends React.Component {
 Scrivito.provideComponent("ThumbnailGalleryWidget", ThumbnailGalleryComponent);
 
 /* eslint-disable jsx-a11y/anchor-is-valid */
-const Thumbnail = Scrivito.connect(({ widget, openLightbox, currentTag }) => {
+const Thumbnail = Scrivito.connect(({ widget, onClick, currentTag }) => {
   const title = widget.get("title");
   const subtitle = widget.get("subtitle");
   const image = widget.get("image");
@@ -286,7 +219,7 @@ const Thumbnail = Scrivito.connect(({ widget, openLightbox, currentTag }) => {
       <a
         href="#"
         className="thumbnail-gallery-widget--content-wrapper"
-        onClick={openLightbox}
+        onClick={onClick}
       >
         <span className="thumbnail-gallery-widget--content">
           <i className="fa fa-camera" aria-hidden="true" />
@@ -312,7 +245,7 @@ function allTags(images) {
   return uniqueTags.sort();
 }
 
-function lightboxOptions(galleryImageWidget) {
+function getLightboxOptions(galleryImageWidget) {
   const image = galleryImageWidget.get("image");
   const binary = image.get("blob");
   const srcUrl = binary.optimizeFor({ width: fullScreenWidthPixels() }).url();
@@ -321,7 +254,6 @@ function lightboxOptions(galleryImageWidget) {
   const subtitle = galleryImageWidget.get("subtitle");
 
   return {
-    src: srcUrl,
     thumbnail: srcUrl,
     caption: [title, subtitle].join(" - "),
     alt,
