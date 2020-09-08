@@ -130,6 +130,17 @@
     justify-content: center;
   }
 
+  .carousel .arrows {
+    display: flex;
+    align-self: center;
+    padding: 10px;
+    width: 70px;
+    height: 120px;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
   .carousel .arrow {
     display: flex;
     align-self: center;
@@ -138,7 +149,6 @@
     background-size: cover;
     height: 43px;
     width: 43px;
-    cursor: pointer;
   }
 
   .carousel .arrow.prev {
@@ -215,21 +225,25 @@
     justify-content: flex-end;
   }
 
+  .carousel .close-button {
+    display: flex;
+    align-self: center;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    margin-right: -10px;
+    cursor: pointer;
+  }
+
   .image-wrapper .close {
-    margin: 10px 0;
     background-image: url("../../assets/images/close.svg");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     height: 20px;
     width: 20px;
-    cursor: pointer;
-  }
-
-  .image-wrapper .close svg {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
   }
 
   .image-wrapper .details {

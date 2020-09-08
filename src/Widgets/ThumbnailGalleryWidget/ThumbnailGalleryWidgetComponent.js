@@ -120,28 +120,34 @@ class ThumbnailGalleryComponent extends React.Component {
               renderArrowNext={(clickHandler, hasNext) => {
                 return (
                   hasNext && (
-                    <span
+                    <button
+                      title="Next (Right arrow key)"
                       onClick={(e) => {
                         e.stopPropagation();
 
                         clickHandler();
                       }}
-                      className="arrow next"
-                    />
+                      className="arrows"
+                    >
+                      <span className="arrow next" />
+                    </button>
                   )
                 );
               }}
               renderArrowPrev={(clickHandler, hasPrevious) => {
                 return (
                   hasPrevious && (
-                    <span
+                    <button
+                      title="Previous (Left arrow key)"
                       onClick={(e) => {
                         e.stopPropagation();
 
                         clickHandler();
                       }}
-                      className="arrow prev"
-                    />
+                      className="arrows"
+                    >
+                      <span className="arrow prev" />
+                    </button>
                   )
                 );
               }}
@@ -163,7 +169,9 @@ class ThumbnailGalleryComponent extends React.Component {
                         this.closeModal();
                       }}
                     >
-                      <span className="close" />
+                      <button title="Close (Esc)" className="close-button">
+                        <span className="close" />
+                      </button>
                     </div>
                     <Scrivito.ImageTag
                       content={image}
