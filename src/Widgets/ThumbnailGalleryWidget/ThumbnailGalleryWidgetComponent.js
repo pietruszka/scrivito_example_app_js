@@ -91,7 +91,6 @@ class ThumbnailGalleryComponent extends React.Component {
               }}
             >
               <Carousel
-                axis="horizontal"
                 showIndicators={false}
                 showStatus={false}
                 selectedItem={this.state.currentImage}
