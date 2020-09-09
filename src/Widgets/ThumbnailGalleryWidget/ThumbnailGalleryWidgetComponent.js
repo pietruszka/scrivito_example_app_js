@@ -78,10 +78,14 @@ class ThumbnailGalleryComponent extends React.Component {
               this.closeLightbox();
             }}
             shouldCloseOnOverlayClick
-            shouldFocusAfterRender
             shouldCloseOnEsc
             ariaHideApp={false}
             portalClassName="ReactModalPortal--thumbnail-gallery-widget"
+            onAfterOpen={() => {
+              const carousel = document.querySelector(".carousel-root");
+
+              if (carousel) carousel.focus();
+            }}
           >
             <span
               onClick={(e) => {
