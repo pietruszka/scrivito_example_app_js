@@ -59,138 +59,140 @@ class ThumbnailGalleryComponent extends React.Component {
           currentTag={this.state.currentTag}
           setTag={this.setTag}
         />
-        <div className="row thumbnail-gallery-widget--wrapper">
-          {images.map((image, imageIndex) => (
-            <Thumbnail
-              key={image.id()}
-              widget={image}
-              onClick={() => this.openLightbox(imageIndex)}
-              currentTag={this.state.currentTag}
-            />
-          ))}
-        </div>
-        <Modal
-          isOpen={this.state.lightboxIsOpen}
-          onRequestClose={(e) => {
-            e.stopPropagation();
-
-            this.closeLightbox();
-          }}
-          shouldCloseOnOverlayClick
-          shouldFocusAfterRender
-          shouldCloseOnEsc
-          ariaHideApp={false}
-          portalClassName="ReactModalPortal--thumbnail-gallery-widget"
-        >
-          <span
-            onClick={(e) => {
+        <div>
+          <div className="row thumbnail-gallery-widget--wrapper">
+            {images.map((image, imageIndex) => (
+              <Thumbnail
+                key={image.id()}
+                widget={image}
+                onClick={() => this.openLightbox(imageIndex)}
+                currentTag={this.state.currentTag}
+              />
+            ))}
+          </div>
+          <Modal
+            isOpen={this.state.lightboxIsOpen}
+            onRequestClose={(e) => {
               e.stopPropagation();
 
               this.closeLightbox();
             }}
+            shouldCloseOnOverlayClick
+            shouldFocusAfterRender
+            shouldCloseOnEsc
+            ariaHideApp={false}
+            portalClassName="ReactModalPortal--thumbnail-gallery-widget"
           >
-            <Carousel
-              axis="horizontal"
-              showIndicators={false}
-              showStatus={false}
-              selectedItem={this.state.currentImage}
-              useKeyboardArrows
-              thumbWidth={50}
-              renderThumbs={() => {
-                return lightboxImages.map(({ image }, index) => {
-                  return (
-                    <Scrivito.BackgroundImageTag
-                      key={index}
-                      style={{
-                        background: {
-                          image: image.get("image"),
-                          size: "cover",
-                          position: "center",
-                        },
-                      }}
-                      onClick={(e) => {
-                        this.setState({ currentImage: index });
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
 
-                        e.stopPropagation();
-                      }}
-                    />
-                  );
-                });
-              }}
-              renderArrowNext={(clickHandler, hasNext) => {
-                return (
-                  hasNext && (
-                    <button
-                      title="Next (Right arrow key)"
-                      onClick={(e) => {
-                        e.stopPropagation();
-
-                        clickHandler();
-                      }}
-                      className="arrows"
-                    >
-                      <span className="arrow next" />
-                    </button>
-                  )
-                );
-              }}
-              renderArrowPrev={(clickHandler, hasPrevious) => {
-                return (
-                  hasPrevious && (
-                    <button
-                      title="Previous (Left arrow key)"
-                      onClick={(e) => {
-                        e.stopPropagation();
-
-                        clickHandler();
-                      }}
-                      className="arrows"
-                    >
-                      <span className="arrow prev" />
-                    </button>
-                  )
-                );
+                this.closeLightbox();
               }}
             >
-              {lightboxImages.map(({ image, caption, alt }, imageIndex) => {
-                return (
-                  <div
-                    key={imageIndex}
-                    className="image-wrapper"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
+              <Carousel
+                axis="horizontal"
+                showIndicators={false}
+                showStatus={false}
+                selectedItem={this.state.currentImage}
+                useKeyboardArrows
+                thumbWidth={50}
+                renderThumbs={() => {
+                  return lightboxImages.map(({ image }, index) => {
+                    return (
+                      <Scrivito.BackgroundImageTag
+                        key={index}
+                        style={{
+                          background: {
+                            image: image.get("image"),
+                            size: "cover",
+                            position: "center",
+                          },
+                        }}
+                        onClick={(e) => {
+                          this.setState({ currentImage: index });
+
+                          e.stopPropagation();
+                        }}
+                      />
+                    );
+                  });
+                }}
+                renderArrowNext={(clickHandler, hasNext) => {
+                  return (
+                    hasNext && (
+                      <button
+                        title="Next (Right arrow key)"
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          clickHandler();
+                        }}
+                        className="arrows"
+                      >
+                        <span className="arrow next" />
+                      </button>
+                    )
+                  );
+                }}
+                renderArrowPrev={(clickHandler, hasPrevious) => {
+                  return (
+                    hasPrevious && (
+                      <button
+                        title="Previous (Left arrow key)"
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          clickHandler();
+                        }}
+                        className="arrows"
+                      >
+                        <span className="arrow prev" />
+                      </button>
+                    )
+                  );
+                }}
+              >
+                {lightboxImages.map(({ image, caption, alt }, imageIndex) => {
+                  return (
                     <div
-                      className="close-bar"
+                      key={imageIndex}
+                      className="image-wrapper"
                       onClick={(e) => {
                         e.stopPropagation();
-
-                        this.closeLightbox();
                       }}
                     >
-                      <button title="Close (Esc)" className="close-button">
-                        <span className="close" />
-                      </button>
+                      <div
+                        className="close-bar"
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          this.closeLightbox();
+                        }}
+                      >
+                        <button title="Close (Esc)" className="close-button">
+                          <span className="close" />
+                        </button>
+                      </div>
+                      <Scrivito.ImageTag
+                        content={image}
+                        attribute="image"
+                        className="image"
+                        alt={alt}
+                      />
+                      <div className="details">
+                        <div className="description">{caption}</div>
+                        <div className="status">{`${imageIndex + 1} of ${
+                          images.length
+                        }`}</div>
+                      </div>
                     </div>
-                    <Scrivito.ImageTag
-                      content={image}
-                      attribute="image"
-                      className="image"
-                      alt={alt}
-                    />
-                    <div className="details">
-                      <div className="description">{caption}</div>
-                      <div className="status">{`${imageIndex + 1} of ${
-                        images.length
-                      }`}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </Carousel>
-          </span>
-        </Modal>
+                  );
+                })}
+              </Carousel>
+            </span>
+          </Modal>
+        </div>
       </div>
     );
   }
