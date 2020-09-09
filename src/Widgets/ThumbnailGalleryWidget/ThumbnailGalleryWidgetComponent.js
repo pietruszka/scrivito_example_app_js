@@ -13,13 +13,13 @@ class ThumbnailGalleryComponent extends React.Component {
     super(props);
     this.state = {
       currentTag: "",
-      isOpen: false,
-      activeImage: 0,
+      lightboxIsOpen: false,
+      currentImage: 0,
     };
 
     this.setTag = this.setTag.bind(this);
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
+    this.openLightbox = this.openLightbox.bind(this);
+    this.closeLightbox = this.closeLightbox.bind(this);
   }
 
   setTag(tag) {
@@ -28,12 +28,12 @@ class ThumbnailGalleryComponent extends React.Component {
     });
   }
 
-  openModal(activeImage) {
-    this.setState({ isOpen: true, activeImage });
+  openLightbox(currentImage) {
+    this.setState({ lightboxIsOpen: true, currentImage });
   }
 
-  closeModal() {
-    this.setState({ isOpen: false });
+  closeLightbox() {
+    this.setState({ lightboxIsOpen: false });
   }
 
   render() {
@@ -64,17 +64,17 @@ class ThumbnailGalleryComponent extends React.Component {
             <Thumbnail
               key={image.id()}
               widget={image}
-              onClick={() => this.openModal(imageIndex)}
+              onClick={() => this.openLightbox(imageIndex)}
               currentTag={this.state.currentTag}
             />
           ))}
         </div>
         <Modal
-          isOpen={this.state.isOpen}
+          isOpen={this.state.lightboxIsOpen}
           onRequestClose={(e) => {
             e.stopPropagation();
 
-            this.closeModal();
+            this.closeLightbox();
           }}
           shouldCloseOnOverlayClick
           shouldFocusAfterRender
@@ -86,14 +86,14 @@ class ThumbnailGalleryComponent extends React.Component {
             onClick={(e) => {
               e.stopPropagation();
 
-              this.closeModal();
+              this.closeLightbox();
             }}
           >
             <Carousel
               axis="horizontal"
               showIndicators={false}
               showStatus={false}
-              selectedItem={this.state.activeImage}
+              selectedItem={this.state.currentImage}
               useKeyboardArrows
               thumbWidth={50}
               renderThumbs={() => {
@@ -109,7 +109,7 @@ class ThumbnailGalleryComponent extends React.Component {
                         },
                       }}
                       onClick={(e) => {
-                        this.setState({ activeImage: index });
+                        this.setState({ currentImage: index });
 
                         e.stopPropagation();
                       }}
@@ -166,7 +166,7 @@ class ThumbnailGalleryComponent extends React.Component {
                       onClick={(e) => {
                         e.stopPropagation();
 
-                        this.closeModal();
+                        this.closeLightbox();
                       }}
                     >
                       <button title="Close (Esc)" className="close-button">
