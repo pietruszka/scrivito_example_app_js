@@ -91,7 +91,9 @@ class ThumbnailGalleryComponent extends React.Component {
               onClick={(e) => {
                 e.stopPropagation();
 
-                this.closeLightbox();
+                if (!e.target.className.includes("control-arrow")) {
+                  this.closeLightbox();
+                }
               }}
             >
               <Carousel
@@ -122,37 +124,41 @@ class ThumbnailGalleryComponent extends React.Component {
                   });
                 }}
                 renderArrowNext={(clickHandler, hasNext) => {
-                  return (
-                    hasNext && (
-                      <button
-                        title="Next (Right arrow key)"
-                        onClick={(e) => {
-                          e.stopPropagation();
+                  let className = `arrow next`;
 
-                          clickHandler();
-                        }}
-                        className="arrows"
-                      >
-                        <span className="arrow next" />
-                      </button>
-                    )
+                  if (!hasNext) {
+                    className += " hidden";
+                  }
+
+                  return (
+                    <span
+                      className={className}
+                      title="Next (Right arrow key)"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        clickHandler();
+                      }}
+                    />
                   );
                 }}
                 renderArrowPrev={(clickHandler, hasPrevious) => {
-                  return (
-                    hasPrevious && (
-                      <button
-                        title="Previous (Left arrow key)"
-                        onClick={(e) => {
-                          e.stopPropagation();
+                  let className = `arrow prev`;
 
-                          clickHandler();
-                        }}
-                        className="arrows"
-                      >
-                        <span className="arrow prev" />
-                      </button>
-                    )
+                  if (!hasPrevious) {
+                    className += " hidden";
+                  }
+
+                  return (
+                    <span
+                      className={className}
+                      title="Previous (Left arrow key)"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        clickHandler();
+                      }}
+                    />
                   );
                 }}
               >
@@ -165,18 +171,15 @@ class ThumbnailGalleryComponent extends React.Component {
                         e.stopPropagation();
                       }}
                     >
-                      <div
-                        className="close-bar"
+                      <span
+                        className="close"
+                        title="Close (Esc)"
                         onClick={(e) => {
                           e.stopPropagation();
 
                           this.closeLightbox();
                         }}
-                      >
-                        <button title="Close (Esc)" className="close-button">
-                          <span className="close" />
-                        </button>
-                      </div>
+                      />
                       <Scrivito.ImageTag
                         content={image}
                         attribute="image"
