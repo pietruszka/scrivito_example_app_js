@@ -162,6 +162,7 @@
     box-shadow: inset 0 0 0 1px hsla(0, 0%, 100%, 0.2);
     border-radius: 2px;
     height: 50px;
+    min-width: 50px;
     cursor: pointer;
   }
 
@@ -182,6 +183,8 @@
     display: inline-flex;
     flex-direction: column;
     color: #fff;
+    width: 100%;
+    padding: 0 5px;
   }
 
   .carousel .close {
@@ -210,14 +213,8 @@
 
   .image-wrapper .image {
     max-height: calc(100vh - 260px);
-    max-width: 1024px;
     object-fit: cover;
-    width: auto;
     margin: 0;
-  }
-
-  .carousel .slide img {
-    width: unset;
   }
 
   .ReactModal__Overlay {
@@ -238,15 +235,13 @@
   }
 }
 
-
 @media (max-width: $screen-sm-max) {
   .ReactModalPortal--thumbnail-gallery-widget .image-wrapper,
-  .ReactModalPortal--thumbnail-gallery-widget .image-wrapper .details { display: block;}
-  .ReactModalPortal--thumbnail-gallery-widget .ReactModal__Content { 
-    inset: 0 !important;  
+  .ReactModalPortal--thumbnail-gallery-widget .image-wrapper .details {
+    display: block;
+  }
+  .ReactModalPortal--thumbnail-gallery-widget .ReactModal__Content {
+    inset: 0 !important;
     padding: 40px 0 !important;
   }
 }
-
-
-
