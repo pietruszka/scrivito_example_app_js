@@ -79,6 +79,7 @@ function webpackConfig(env = {}) {
                     },
                   ],
                 ],
+                plugins: ["@babel/plugin-syntax-dynamic-import"],
                 cacheDirectory: "tmp/babel-cache",
               },
             },
