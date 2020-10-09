@@ -3,6 +3,7 @@ import * as Scrivito from "scrivito";
 
 import googleMapsApiKey from "../../utils/googleMapsApiKey";
 import googleMapsImageUrl from "../../utils/googleMapsImageUrl";
+import { Cookies } from "react-cookie-consent";
 import "./GoogleMapsWidget.scss";
 
 const maxWidth = 640;
@@ -82,6 +83,7 @@ class GoogleMapsWidgetComponent extends React.Component {
     return (
       <div ref={this.outerDivRef} className="google-maps-widget" style={style}>
         <InteractiveMap
+          allowCookies={shouldAllowCookies()}
           address={address}
           zoom={zoom}
           apiKey={apiKey}
@@ -115,14 +117,34 @@ class GoogleMapsWidgetComponent extends React.Component {
   }
 }
 
-function InteractiveMap({ address, apiKey, zoom, mapType }) {
+function shouldAllowCookies() {
+  const root = Scrivito.Obj.root();
+  const cookieConsentLink = root.get("cookieConsentLink");
+
+  if (!cookieConsentLink) return false;
+
+  const cookieConsentLinkUrl = Scrivito.urlFor(cookieConsentLink);
+  const isCookieAccepted = Cookies.get().CookieConsent;
+
+  return cookieConsentLinkUrl.length > 0 && isCookieAccepted;
+}
+
+function InteractiveMap({ address, apiKey, zoom, mapType, allowCookies }) {
   if (mapType !== "interactive") {
     return null;
   }
 
+  let sandbox = "allow-scripts";
+
+  if (allowCookies) {
+    sandbox += " allow-same-origin";
+  }
+
   const url = `https://www.google.com/maps/embed/v1/place?q=${address}&key=${apiKey}&zoom=${zoom}`;
+
   return (
     <iframe
+      sandbox={sandbox}
       title="Interactive Map"
       frameBorder="0"
       style={{ border: 0 }}
