@@ -2,19 +2,30 @@ import * as React from "react";
 import * as Scrivito from "scrivito";
 import ReactCookieConsent, { Cookies } from "react-cookie-consent";
 import cookieConsentIcon from "../assets/images/cookie_consent_icon.svg";
-import { resolveCookieConsent } from "../utils/cookieConsentGiven";
+import cookieConsentGiven, {
+  resolveCookieConsent,
+} from "../utils/cookieConsentGiven";
 
 class CookieConsent extends React.Component {
+  state = { shouldDisplay: true };
+
   componentDidMount() {
     if (Cookies.get("CookieConsent") === "true") {
       resolveCookieConsent();
     }
+
+    cookieConsentGiven().then(() => {
+      this.setState((props) => ({
+        ...props,
+        shouldDisplay: Cookies.get("CookieConsent") !== "true",
+      }));
+    });
   }
 
   render() {
     const root = Scrivito.Obj.root();
 
-    if (!root) {
+    if (!root || !this.state.shouldDisplay) {
       return null;
     }
 
