@@ -1,9 +1,12 @@
 import * as React from "react";
 import * as Scrivito from "scrivito";
+import { Cookies } from "react-cookie-consent";
 
 import googleMapsApiKey from "../../utils/googleMapsApiKey";
 import googleMapsImageUrl from "../../utils/googleMapsImageUrl";
-import { Cookies } from "react-cookie-consent";
+import cookieConsentGiven, {
+  resolveCookieConsent,
+} from "../../utils/cookieConsentGiven";
 import "./GoogleMapsWidget.scss";
 
 const maxWidth = 640;
@@ -17,6 +20,7 @@ class GoogleMapsWidgetComponent extends React.Component {
       elementWidth: 0,
       height: null,
       width: null,
+      allowCookies: shouldAllowCookies(),
     };
 
     this.outerDivRef = React.createRef();
@@ -27,6 +31,13 @@ class GoogleMapsWidgetComponent extends React.Component {
   componentDidMount() {
     this.handleResize();
     window.addEventListener("resize", this.handleResize);
+
+    cookieConsentGiven().then(() =>
+      this.setState((prev) => ({
+        ...prev,
+        allowCookies: shouldAllowCookies(),
+      }))
+    );
   }
 
   componentWillUnmount() {
@@ -68,6 +79,7 @@ class GoogleMapsWidgetComponent extends React.Component {
     const mapType = this.props.widget.get("mapType") || "static";
 
     let style = {};
+    let interactiveMap;
 
     if (mapType === "static") {
       style = {
@@ -80,15 +92,24 @@ class GoogleMapsWidgetComponent extends React.Component {
       };
     }
 
+    if (mapType === "interactive") {
+      if (this.state.allowCookies) {
+        interactiveMap = (
+          <InteractiveMap
+            address={address}
+            zoom={zoom}
+            apiKey={apiKey}
+            mapType={mapType}
+          />
+        );
+      } else {
+        interactiveMap = <NoCookiesNotification />;
+      }
+    }
+
     return (
       <div ref={this.outerDivRef} className="google-maps-widget" style={style}>
-        <InteractiveMap
-          allowCookies={shouldAllowCookies()}
-          address={address}
-          zoom={zoom}
-          apiKey={apiKey}
-          mapType={mapType}
-        />
+        {interactiveMap}
         <Widgets widget={this.props.widget} mapType={mapType} />
       </div>
     );
@@ -124,27 +145,21 @@ function shouldAllowCookies() {
   if (!cookieConsentLink) return false;
 
   const cookieConsentLinkUrl = Scrivito.urlFor(cookieConsentLink);
-  const isCookieAccepted = Cookies.get().CookieConsent;
+  const isCookieAccepted = Cookies.get().CookieConsent === "true";
 
   return cookieConsentLinkUrl.length > 0 && isCookieAccepted;
 }
 
-function InteractiveMap({ address, apiKey, zoom, mapType, allowCookies }) {
+function InteractiveMap({ address, apiKey, zoom, mapType }) {
   if (mapType !== "interactive") {
     return null;
-  }
-
-  let sandbox = "allow-scripts";
-
-  if (allowCookies) {
-    sandbox += " allow-same-origin";
   }
 
   const url = `https://www.google.com/maps/embed/v1/place?q=${address}&key=${apiKey}&zoom=${zoom}`;
 
   return (
     <iframe
-      sandbox={sandbox}
+      sandbox="allow-scripts allow-same-origin"
       title="Interactive Map"
       frameBorder="0"
       style={{ border: 0 }}
@@ -152,6 +167,30 @@ function InteractiveMap({ address, apiKey, zoom, mapType, allowCookies }) {
       loading="lazy"
     />
   );
+}
+
+function NoCookiesNotification() {
+  return (
+    <div className="no-cookies-notification">
+      <div className="consent-content">
+        Please accept our Cookie Policy to view Google Maps.
+      </div>
+      <div>
+        <button
+          className="cookie-button btn btn-primary"
+          onClick={acceptCookie}
+        >
+          Accept
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function acceptCookie() {
+  Cookies.set("CookieConsent", "true");
+
+  resolveCookieConsent();
 }
 
 const Widgets = Scrivito.connect(({ widget, mapType }) => {

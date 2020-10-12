@@ -37,6 +37,19 @@
   table td {
     padding: 0 5px 0 0;
   }
+
+  .no-cookies-notification {
+    background-color: #fff;
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: 190px;
+    padding: 30px;
+  }
+
+  .consent-content {
+    margin-bottom: 1rem;
+  }
 }
 
 @media (max-width: $screen-xs-max) {
