@@ -7,112 +7,111 @@ import "./GoogleMapsWidget.scss";
 
 const maxWidth = 640;
 
-class GoogleMapsWidgetComponent extends React.Component {
-  constructor(props) {
-    super(props);
+function GoogleMapsWidgetComponent(props) {
+  const address =
+    props.widget.get("address") || "Brandenburg Gate, Berlin, Germany";
+  const zoom = props.widget.get("zoom") || "15";
+  const apiKey = googleMapsApiKey();
+  const mapType = props.widget.get("mapType") || "static";
+  const [elementBoundary, setElementBoundary] = React.useState({
+    elementHeight: 0,
+    elementWidth: 0,
+    height: null,
+    width: null,
+  });
 
-    this.state = {
-      elementHeight: 0,
-      elementWidth: 0,
-      height: null,
-      width: null,
-    };
+  const outerDivRef = React.useRef(null);
 
-    this.outerDivRef = React.createRef();
+  React.useEffect(() => {
+    handleResize(outerDivRef.current, elementBoundary, setElementBoundary);
 
-    this.handleResize = this.handleResize.bind(this);
-  }
-
-  componentDidMount() {
-    this.handleResize();
-    window.addEventListener("resize", this.handleResize);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.handleResize);
-  }
-
-  handleResize() {
-    const elementWidth = this.outerDivRef.current.offsetWidth;
-    const elementHeight = this.outerDivRef.current.offsetHeight;
-
-    if (
-      this.state.elementWidth !== elementWidth ||
-      this.state.elementHeight !== elementHeight
-    ) {
-      let width = elementWidth;
-      let height = elementHeight;
-
-      if (width > maxWidth) {
-        width = maxWidth;
-
-        const factor = elementHeight / elementWidth;
-        height = Math.round(maxWidth * factor);
-      }
-
-      this.setState({
-        elementHeight,
-        elementWidth,
-        height,
-        width,
-      });
-    }
-  }
-
-  render() {
-    const address =
-      this.props.widget.get("address") || "Brandenburg Gate, Berlin, Germany";
-    const zoom = this.props.widget.get("zoom") || "15";
-    const apiKey = googleMapsApiKey();
-    const mapType = this.props.widget.get("mapType") || "static";
-
-    let style = {};
-
-    if (mapType === "static") {
-      style = {
-        background: "no-repeat center / cover",
-        backgroundImage: `url(${this.googleMapsImageUrl({
-          address,
-          apiKey,
-          zoom,
-        })})`,
-      };
-    }
-
-    return (
-      <div ref={this.outerDivRef} className="google-maps-widget" style={style}>
-        <InteractiveMap
-          address={address}
-          zoom={zoom}
-          apiKey={apiKey}
-          mapType={mapType}
-        />
-        <Widgets widget={this.props.widget} mapType={mapType} />
-      </div>
+    window.addEventListener("resize", () =>
+      handleResize(outerDivRef.current, elementBoundary, setElementBoundary)
     );
-  }
 
-  googleMapsImageUrl({ address, apiKey, zoom }) {
-    if (!this.state.height || !this.state.width) {
-      // wait for the real height/width to not consume to much rate from google.
-      return "";
-    }
-
-    // See all options at https://developers.google.com/maps/documentation/static-maps/intro
-    const params = {
-      size: `${this.state.width}x${this.state.height}`,
-      scale: 2, // with scale 2 google maps allows more pixels.
-      markers: `color:red|${address}`,
-      zoom,
-      ie: "UTF8",
+    return () => {
+      window.removeEventListener("resize", () =>
+        handleResize(outerDivRef.current, elementBoundary, setElementBoundary)
+      );
     };
+  }, []);
 
-    if (apiKey) {
-      params.key = apiKey;
+  function handleResize(ref, state, setState) {
+    if (ref) {
+      const elementWidth = ref.offsetWidth;
+      const elementHeight = ref.offsetHeight;
+
+      if (
+        state.elementWidth !== elementWidth ||
+        state.elementHeight !== elementHeight
+      ) {
+        let width = elementWidth;
+        let height = elementHeight;
+
+        if (width > maxWidth) {
+          width = maxWidth;
+
+          const factor = elementHeight / elementWidth;
+          height = Math.round(maxWidth * factor);
+        }
+
+        setState({
+          elementHeight,
+          elementWidth,
+          height,
+          width,
+        });
+      }
     }
-
-    return googleMapsImageUrl(params);
   }
+
+  let style = {};
+
+  if (mapType === "static") {
+    style = {
+      background: "no-repeat center / cover",
+      backgroundImage: `url(${getUrl({
+        elementBoundary,
+        address,
+        apiKey,
+        zoom,
+      })})`,
+    };
+  }
+
+  return (
+    <div ref={outerDivRef} className="google-maps-widget" style={style}>
+      <InteractiveMap
+        address={address}
+        zoom={zoom}
+        apiKey={apiKey}
+        mapType={mapType}
+      />
+      <Widgets widget={props.widget} mapType={mapType} />
+    </div>
+  );
+}
+
+function getUrl({ elementBoundary, address, apiKey, zoom }) {
+  if (!elementBoundary.height || !elementBoundary.width) {
+    // wait for the real height/width to not consume to much rate from google.
+    return "";
+  }
+
+  // See all options at https://developers.google.com/maps/documentation/static-maps/intro
+  const params = {
+    size: `${elementBoundary.width}x${elementBoundary.height}`,
+    scale: 2, // with scale 2 google maps allows more pixels.
+    markers: `color:red|${address}`,
+    zoom,
+    ie: "UTF8",
+  };
+
+  if (apiKey) {
+    params.key = apiKey;
+  }
+
+  return googleMapsImageUrl(params);
 }
 
 function InteractiveMap({ address, apiKey, zoom, mapType }) {
