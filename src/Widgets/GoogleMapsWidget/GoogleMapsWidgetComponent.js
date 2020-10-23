@@ -1,7 +1,10 @@
 import * as React from "react";
 import * as Scrivito from "scrivito";
 
-import { useCookieConsent } from "../../Components/CookieConsentContext";
+import {
+  cookieConsentUrl,
+  useCookieConsent,
+} from "../../Components/CookieConsentContext";
 import googleMapsApiKey from "../../utils/googleMapsApiKey";
 import googleMapsImageUrl from "../../utils/googleMapsImageUrl";
 import "./GoogleMapsWidget.scss";
@@ -13,6 +16,7 @@ function GoogleMapsWidgetComponent(props) {
     props.widget.get("address") || "Brandenburg Gate, Berlin, Germany";
   const zoom = props.widget.get("zoom") || "15";
   const apiKey = googleMapsApiKey();
+  const consentUrl = cookieConsentUrl();
   const mapType = props.widget.get("mapType") || "static";
   const [elementBoundary, setElementBoundary] = React.useState({
     elementHeight: 0,
@@ -20,33 +24,38 @@ function GoogleMapsWidgetComponent(props) {
     height: null,
     width: null,
   });
+  const [isVisible, setIsVisible] = React.useState(false);
 
   const { cookieConsentChoice, acceptCookieConsent } = useCookieConsent();
 
-  const outerDivRef = React.useRef(null);
+  const widgetRef = React.useRef(null);
 
   React.useEffect(() => {
-    handleResize(outerDivRef.current, elementBoundary, setElementBoundary);
+    handleResize();
 
-    window.addEventListener("resize", () =>
-      handleResize(outerDivRef.current, elementBoundary, setElementBoundary)
-    );
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", () =>
-        handleResize(outerDivRef.current, elementBoundary, setElementBoundary)
-      );
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  function handleResize(ref, state, setState) {
-    if (ref) {
-      const elementWidth = ref.offsetWidth;
-      const elementHeight = ref.offsetHeight;
+  React.useEffect(() => {
+    if (!consentUrl || cookieConsentChoice === "accepted") {
+      setIsVisible(true);
+    }
+  }, [consentUrl, cookieConsentChoice]);
+
+  function handleResize() {
+    const currentRef = widgetRef.current;
+
+    if (currentRef) {
+      const elementWidth = currentRef.offsetWidth;
+      const elementHeight = currentRef.offsetHeight;
 
       if (
-        state.elementWidth !== elementWidth ||
-        state.elementHeight !== elementHeight
+        elementBoundary.elementWidth !== elementWidth ||
+        elementBoundary.elementHeight !== elementHeight
       ) {
         let width = elementWidth;
         let height = elementHeight;
@@ -58,7 +67,7 @@ function GoogleMapsWidgetComponent(props) {
           height = Math.round(maxWidth * factor);
         }
 
-        setState({
+        setElementBoundary({
           elementHeight,
           elementWidth,
           height,
@@ -69,55 +78,49 @@ function GoogleMapsWidgetComponent(props) {
   }
 
   let style = {};
-
-  if (mapType === "static") {
-    style = {
-      background: "no-repeat center / cover",
-      backgroundImage: `url(${getUrl({
-        elementBoundary,
-        address,
-        apiKey,
-        zoom,
-      })})`,
-    };
-  }
-
   let interactiveMap;
 
-  if (mapType === "interactive") {
-    if (cookieConsentChoice === "accepted") {
+  if (!isVisible) {
+    interactiveMap = (
+      <NoCookiesNotification onAcceptCookiesClick={acceptCookieConsent} />
+    );
+  } else {
+    if (mapType === "static") {
+      style = {
+        background: "no-repeat center / cover",
+        backgroundImage: `url(${getMapUrl({
+          dimmension: elementBoundary,
+          address,
+          apiKey,
+          zoom,
+        })})`,
+      };
+    }
+
+    if (mapType === "interactive") {
       interactiveMap = (
-        <InteractiveMap
-          address={address}
-          zoom={zoom}
-          apiKey={apiKey}
-          mapType={mapType}
-        />
-      );
-    } else {
-      interactiveMap = (
-        <NoCookiesNotification onAcceptCookiesClick={acceptCookieConsent} />
+        <InteractiveMap address={address} zoom={zoom} apiKey={apiKey} />
       );
     }
   }
 
   return (
-    <div ref={outerDivRef} className="google-maps-widget" style={style}>
+    <div ref={widgetRef} className="google-maps-widget" style={style}>
       {interactiveMap}
       <Widgets widget={props.widget} mapType={mapType} />
     </div>
   );
 }
 
-function getUrl({ elementBoundary, address, apiKey, zoom }) {
-  if (!elementBoundary.height || !elementBoundary.width) {
+function getMapUrl({ dimmension, address, apiKey, zoom }) {
+  if (!dimmension.height || !dimmension.width) {
     // wait for the real height/width to not consume to much rate from google.
     return "";
   }
 
   // See all options at https://developers.google.com/maps/documentation/static-maps/intro
   const params = {
-    size: `${elementBoundary.width}x${elementBoundary.height}`,
+    size: `${dimmension.width}x${dimmension.height}`,
     scale: 2, // with scale 2 google maps allows more pixels.
     markers: `color:red|${address}`,
     zoom,
@@ -131,12 +134,9 @@ function getUrl({ elementBoundary, address, apiKey, zoom }) {
   return googleMapsImageUrl(params);
 }
 
-function InteractiveMap({ address, apiKey, zoom, mapType }) {
-  if (mapType !== "interactive") {
-    return null;
-  }
-
+function InteractiveMap({ address, apiKey, zoom }) {
   const url = `https://www.google.com/maps/embed/v1/place?q=${address}&key=${apiKey}&zoom=${zoom}`;
+
   return (
     <iframe
       sandbox="allow-scripts allow-same-origin"
