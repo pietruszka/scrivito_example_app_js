@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as Scrivito from "scrivito";
 
+import { useCookieConsent } from "../../Components/CookieConsentContext";
 import googleMapsApiKey from "../../utils/googleMapsApiKey";
 import googleMapsImageUrl from "../../utils/googleMapsImageUrl";
 import "./GoogleMapsWidget.scss";
@@ -19,6 +20,8 @@ function GoogleMapsWidgetComponent(props) {
     height: null,
     width: null,
   });
+
+  const { cookieConsentChoice, acceptCookieConsent } = useCookieConsent();
 
   const outerDivRef = React.useRef(null);
 
@@ -79,14 +82,28 @@ function GoogleMapsWidgetComponent(props) {
     };
   }
 
+  let interactiveMap;
+
+  if (mapType === "interactive") {
+    if (cookieConsentChoice === "accepted") {
+      interactiveMap = (
+        <InteractiveMap
+          address={address}
+          zoom={zoom}
+          apiKey={apiKey}
+          mapType={mapType}
+        />
+      );
+    } else {
+      interactiveMap = (
+        <NoCookiesNotification onAcceptCookiesClick={acceptCookieConsent} />
+      );
+    }
+  }
+
   return (
     <div ref={outerDivRef} className="google-maps-widget" style={style}>
-      <InteractiveMap
-        address={address}
-        zoom={zoom}
-        apiKey={apiKey}
-        mapType={mapType}
-      />
+      {interactiveMap}
       <Widgets widget={props.widget} mapType={mapType} />
     </div>
   );
@@ -122,12 +139,31 @@ function InteractiveMap({ address, apiKey, zoom, mapType }) {
   const url = `https://www.google.com/maps/embed/v1/place?q=${address}&key=${apiKey}&zoom=${zoom}`;
   return (
     <iframe
+      sandbox="allow-scripts allow-same-origin"
       title="Interactive Map"
       frameBorder="0"
       style={{ border: 0 }}
       src={url}
       loading="lazy"
     />
+  );
+}
+
+function NoCookiesNotification({ onAcceptCookiesClick }) {
+  return (
+    <div className="no-cookies-notification">
+      <div className="consent-content">
+        Please accept our Cookie Policy to view Google Maps.
+      </div>
+      <div>
+        <button
+          className="cookie-button btn btn-primary"
+          onClick={onAcceptCookiesClick}
+        >
+          Accept
+        </button>
+      </div>
+    </div>
   );
 }
 
