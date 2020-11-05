@@ -30,6 +30,25 @@ export function useCookieConsent() {
   return React.useContext(CookieConsentContext);
 }
 
+export function cookieConsentUrl() {
+  const root = Scrivito.Obj.root();
+
+  if (!root) {
+    return null;
+  }
+
+  const cookieConsentLink = root.get("cookieConsentLink");
+
+  if (!cookieConsentLink) {
+    return null;
+  }
+
+  return {
+    url: Scrivito.urlFor(cookieConsentLink),
+    title: cookieConsentLink.title() || "Learn more »",
+  };
+}
+
 function getCookieConsent() {
   return localStorage.getItem("CookieConsent") || "undecided";
 }

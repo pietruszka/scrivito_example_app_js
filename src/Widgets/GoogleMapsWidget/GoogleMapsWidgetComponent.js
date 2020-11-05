@@ -4,7 +4,10 @@ import useResizeObserver from "use-resize-observer";
 
 import googleMapsApiKey from "../../utils/googleMapsApiKey";
 import googleMapsImageUrl from "../../utils/googleMapsImageUrl";
-import { useCookieConsent } from "../../Components/CookieConsentContext";
+import {
+  cookieConsentUrl,
+  useCookieConsent,
+} from "../../Components/CookieConsentContext";
 import "./GoogleMapsWidget.scss";
 
 const maxWidth = 640;
@@ -12,11 +15,12 @@ const maxWidth = 640;
 function GoogleMapsWidgetComponent({ widget }) {
   const address = widget.get("address") || "Brandenburg Gate, Berlin, Germany";
   const zoom = widget.get("zoom") || "15";
+  const consentUrl = cookieConsentUrl();
   const apiKey = googleMapsApiKey();
   const mapType = widget.get("mapType") || "static";
   const { cookieConsentChoice, acceptCookieConsent } = useCookieConsent();
 
-  if (cookieConsentChoice !== "accepted") {
+  if (consentUrl && cookieConsentChoice !== "accepted") {
     return (
       <NoCookiesNotification onAcceptCookiesClick={acceptCookieConsent}>
         <Widgets widget={widget} mapType={mapType} />

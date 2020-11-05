@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Scrivito from "scrivito";
-import { useCookieConsent } from "./CookieConsentContext";
+import { cookieConsentUrl, useCookieConsent } from "./CookieConsentContext";
 import cookieConsentIcon from "../assets/images/cookie_consent_icon.svg";
 
 function CookieConsentBanner() {
@@ -73,25 +73,6 @@ function CookieBanner(props) {
       </div>
     </div>
   );
-}
-
-function cookieConsentUrl() {
-  const root = Scrivito.Obj.root();
-
-  if (!root) {
-    return null;
-  }
-
-  const cookieConsentLink = root.get("cookieConsentLink");
-
-  if (!cookieConsentLink) {
-    return null;
-  }
-
-  return {
-    url: Scrivito.urlFor(cookieConsentLink),
-    title: cookieConsentLink.title() || "Learn more »",
-  };
 }
 
 export default Scrivito.connect(CookieConsentBanner);
