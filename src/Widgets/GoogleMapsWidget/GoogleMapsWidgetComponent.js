@@ -4,6 +4,7 @@ import useResizeObserver from "use-resize-observer";
 
 import googleMapsApiKey from "../../utils/googleMapsApiKey";
 import googleMapsImageUrl from "../../utils/googleMapsImageUrl";
+import { useCookieConsent } from "../../Components/CookieConsentContext";
 import "./GoogleMapsWidget.scss";
 
 const maxWidth = 640;
@@ -13,6 +14,15 @@ function GoogleMapsWidgetComponent({ widget }) {
   const zoom = widget.get("zoom") || "15";
   const apiKey = googleMapsApiKey();
   const mapType = widget.get("mapType") || "static";
+  const { cookieConsentChoice, acceptCookieConsent } = useCookieConsent();
+
+  if (cookieConsentChoice !== "accepted") {
+    return (
+      <NoCookiesNotification onAcceptCookiesClick={acceptCookieConsent}>
+        <Widgets widget={widget} mapType={mapType} />
+      </NoCookiesNotification>
+    );
+  }
 
   const Map = mapType === "static" ? StaticGoogleMap : InteractiveGoogleMap;
 
@@ -28,6 +38,7 @@ function InteractiveGoogleMap({ address, apiKey, zoom, children }) {
   return (
     <div className="google-maps-widget">
       <iframe
+        sandbox="allow-scripts allow-same-origin"
         title="Interactive Map"
         frameBorder="0"
         style={{ border: 0 }}
@@ -98,6 +109,27 @@ function getMapUrl({ width, height, address, apiKey, zoom }) {
   }
 
   return googleMapsImageUrl(params);
+}
+
+function NoCookiesNotification({ onAcceptCookiesClick, children }) {
+  return (
+    <div className="google-maps-widget">
+      <div className="no-cookies-notification">
+        <div className="consent-content">
+          Please accept our Cookie Policy to view Google Maps.
+        </div>
+        <div>
+          <button
+            className="cookie-button btn btn-primary"
+            onClick={onAcceptCookiesClick}
+          >
+            Accept
+          </button>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
 }
 
 const Widgets = Scrivito.connect(({ widget, mapType }) => {
